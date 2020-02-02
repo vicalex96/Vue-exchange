@@ -213,7 +213,6 @@ export default {
           this.asset = asset
           this.history = history
           this.markets = markets
-          console.log(markets)
         })
         .finally(() => (this.isLoading = false))
     }
