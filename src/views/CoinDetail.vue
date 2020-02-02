@@ -1,7 +1,7 @@
 <template>
   <div class="flex-col">
     <div class="flex justify-center">
-      <bounce-loader :loading="isLoading" :color="'#68d391'" :size="100"/>
+      <bounce-loader :loading="isLoading" :color="'#68d391'" :size="100" />
     </div>
 
     <template v-if="!isLoading">
@@ -15,9 +15,9 @@
             class="w-20 h-20 mr-5"
           />
           <h1 class="text-5xl">
-            <span v-if=" asset.name != asset.symbol">  {{ asset.name }} </span>
+            <span v-if="asset.name != asset.symbol"> {{ asset.name }} </span>
             <span v-else> {{ firstMayus(asset.id) }}</span>
-            <small class="sm:mr-2 text-gray-500">  {{ asset.symbol }}</small>
+            <small class="sm:mr-2 text-gray-500"> {{ asset.symbol }}</small>
           </h1>
         </div>
 
@@ -51,17 +51,17 @@
         </div>
 
         <div class="my-10 sm:mt-0 flex flex-col justify-center text-center">
-          <button @click="toggleConverter"
+          <button
+            @click="toggleConverter"
             class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-          >{{
-            fromUsd ? `USD a ${asset.symbol}` : `${asset.symbol} a USD`
-          }}
+          >
+            {{ fromUsd ? `USD a ${asset.symbol}` : `${asset.symbol} a USD` }}
           </button>
 
           <div class="flex flex-row my-5">
             <label class="w-full" for="convertValue">
               <input
-                v-model= "convertValue"
+                v-model="convertValue"
                 id="convertValue"
                 type="number"
                 class="text-center bg-white focus:outline-none focus:shadow-outline border border-gray-300 rounded-lg py-2 px-4 block w-full appearance-none leading-normal"
@@ -70,36 +70,45 @@
             </label>
           </div>
 
-          <span class="text-xl">{{ convertResult}} {{ fromUsd ?  asset.symbol: 'USD' }}</span>
+          <span class="text-xl"
+            >{{ convertResult }} {{ fromUsd ? asset.symbol : 'USD' }}</span
+          >
         </div>
       </div>
 
       <!-- la siguiente etqueta utiliza el vue-chartkick y chart.js comonentes de graficos-->
-      <line-chart class="my-10"
+      <line-chart
+        class="my-10"
         :colors="['orange']"
-        :min="min"  
+        :min="min"
         :max="max"
         :data="history.map(h => [h.date, parseFloat(h.priceUsd).toFixed(2)])"
       />
 
       <!-- -->
       <table>
-        <tr v-for= "m in markets" :key="`${m.exchangeId}-${m.priceUsd}`" class ="border-b">
+        <tr
+          v-for="m in markets"
+          :key="`${m.exchangeId}-${m.priceUsd}`"
+          class="border-b"
+        >
           <td>
-            <b> {{m.exchangeId }}</b>
+            <b> {{ m.exchangeId }}</b>
           </td>
-          <td>{{m.priceUsd | dollar}} </td>
-          
-          <td> {{ m.baseSymbol }} / {{m.quoteSymbol}} </td>
+          <td>{{ m.priceUsd | dollar }}</td>
+
+          <td>{{ m.baseSymbol }} / {{ m.quoteSymbol }}</td>
           <td>
-            <px-button 
+            <px-button
               :is-loading="m.isLoading || false"
               v-if="!m.url"
-              @custom-click="getWebsite(m)">
-              <div v-show="!m.isLoading"> obtener Link </div>
+              @custom-click="getWebsite(m)"
+            >
+              <div v-show="!m.isLoading">obtener Link</div>
             </px-button>
-            <a class="hover:underline text-green-600" target=" _blanck"> 
-            {{m.url}}  </a>  
+            <a class="hover:underline text-green-600" target=" _blanck">
+              {{ m.url }}
+            </a>
           </td>
         </tr>
       </table>
@@ -113,7 +122,7 @@ import api from '@/api'
 
 export default {
   name: 'CoinDetail',
-  components: {PxButton},
+  components: { PxButton },
 
   data() {
     return {
@@ -127,11 +136,13 @@ export default {
   },
 
   computed: {
-    convertResult () {
-      if(!this.convertValue){
-          return 0
+    convertResult() {
+      if (!this.convertValue) {
+        return 0
       }
-      const result = this.fromUsd ? this.convertValue / this.asset.priceUsd : this.convertValue * this.asset.priceUsd
+      const result = this.fromUsd
+        ? this.convertValue / this.asset.priceUsd
+        : this.convertValue * this.asset.priceUsd
       return result.toFixed(4)
     },
 
@@ -155,7 +166,7 @@ export default {
   },
 
   watch: {
-    $route(){
+    $route() {
       //aqui se corrige el problema de que la pagina al estar en la misma vista no se actualiza
       //pese a que tenga que mostrar datos distintos
       //aqui nos dise que cuando cambie la ruta se vuelve a cargar
@@ -164,7 +175,6 @@ export default {
   },
 
   created() {
-    
     this.getCoin() //cada vez que el componente de cree se piden los datos de la moneda correspondiente
   },
 
@@ -172,14 +182,15 @@ export default {
     toggleConverter() {
       this.fromUsd = !this.fromUsd
     },
-    firstMayus(string){
-      return string.charAt(0).toUpperCase() + string.slice(1);
+    firstMayus(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1)
     },
-    getWebsite(exchange){
+    getWebsite(exchange) {
       this.$set(exchange, 'isLoading', true)
 
-      return api.getExchange(exchange.exchangeId)
-        .then( res => {
+      return api
+        .getExchange(exchange.exchangeId)
+        .then(res => {
           //se utiliza para evitar problemas de traqueo
           //solo ocurre cuado se agrega una variable que no estaba contenida en data o que no se agrego desde el principio
           this.$set(exchange, 'url', res.exchangeUrl)
@@ -190,17 +201,21 @@ export default {
     },
 
     getCoin() {
-      this.isLoading=true
+      this.isLoading = true
       const id = this.$route.params.id //el id del parametro que queremos de la ruta es decir el 7coin/:id
 
-      Promise.all([api.getAsset(id), api.getAssetHistory(id), api.getMarkets(id)]).then(
-        ([asset, history, markets]) => {
+      Promise.all([
+        api.getAsset(id),
+        api.getAssetHistory(id),
+        api.getMarkets(id)
+      ])
+        .then(([asset, history, markets]) => {
           this.asset = asset
           this.history = history
           this.markets = markets
           console.log(markets)
-        }
-      ).finally(()=>this.isLoading = false)
+        })
+        .finally(() => (this.isLoading = false))
     }
   }
 }
